@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using Repositories;
 
 namespace basic_webapi.Controllers;
 
@@ -6,27 +7,22 @@ namespace basic_webapi.Controllers;
 [Route("[controller]")]
 public class WeatherForecastController : ControllerBase
 {
-    private static readonly string[] Summaries = new[]
-    {
-        "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-    };
+    private readonly IWeatherForecastRepository _weatherForecastRepository;
 
-    private readonly ILogger<WeatherForecastController> _logger;
-
-    public WeatherForecastController(ILogger<WeatherForecastController> logger)
+    public WeatherForecastController(IWeatherForecastRepository weatherForecastRepository)
     {
-        _logger = logger;
+        _weatherForecastRepository = weatherForecastRepository;
     }
 
     [HttpGet]
-    public IEnumerable<WeatherForecast> Get()
+    public List<WeatherForecast> Get()
     {
-        return Enumerable.Range(1, 5).Select(index => new WeatherForecast
-        {
-            Date = DateTime.Now.AddDays(index),
-            TemperatureC = Random.Shared.Next(-20, 55),
-            Summary = Summaries[Random.Shared.Next(Summaries.Length)]
-        })
-        .ToArray();
+        return _weatherForecastRepository.GetWeatherForecastsAsync();
+    }
+
+    [HttpPost]
+    public void Create([FromBody] WeatherForecast weatherForecast)
+    {
+        _weatherForecastRepository.CreateAsync(weatherForecast);
     }
 }
