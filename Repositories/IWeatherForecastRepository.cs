@@ -7,5 +7,6 @@ public interface IWeatherForecastRepository
     List<WeatherForecast> GetWeatherForecastsAsync();
     Task DeleteByIdAsync(dynamic id);
     Task<WeatherForecast> CreateAsync(WeatherForecast model);
+    WeatherForecast Create(WeatherForecast model);
     Task<WeatherForecast> UpdateAsync(WeatherForecast model, bool upsert = true);
 }

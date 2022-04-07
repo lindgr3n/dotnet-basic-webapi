@@ -1,24 +1,29 @@
 using basic_webapi;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace Repositories;
 
 public class WeatherForecastRepository : IWeatherForecastRepository, IDisposable
 {
-    internal WeatherForecastDb context;
-
-     private static readonly string[] Summaries = new[]
-    {
-        "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-    };
+    internal WeatherForecastDb _context;
 
     public WeatherForecastRepository(WeatherForecastDb context) 
     {
-        this.context = context;
+        _context = context;
+
     }
-    public Task<WeatherForecast> CreateAsync(WeatherForecast model)
+    public async Task<WeatherForecast> CreateAsync(WeatherForecast model)
     {
-        throw new NotImplementedException();
+        _context.WeatherForecasts.Add(model);
+        await _context.SaveChangesAsync();
+        return null;
+    }
+    public WeatherForecast Create(WeatherForecast model)
+    {
+        _context.WeatherForecasts.Add(model);
+        _context.SaveChanges();
+        return null;
     }
 
     public Task DeleteByIdAsync(dynamic id)
@@ -33,20 +38,8 @@ public class WeatherForecastRepository : IWeatherForecastRepository, IDisposable
 
     public List<WeatherForecast> GetWeatherForecastsAsync()
     {
-        List<WeatherForecast> list = new List<WeatherForecast>();
-
-
-        var l = Enumerable.Range(1, 5).Select(index => new WeatherForecast
-        {
-            Date = DateTime.Now.AddDays(index),
-            TemperatureC = Random.Shared.Next(-20, 55),
-            Summary = Summaries[Random.Shared.Next(Summaries.Length)]
-        });
-        for (int i = 0; i < l.Count(); i++)
-        {
-            list.Add(l.ElementAt(i));   
-        }
-        return list;
+        
+        return _context.WeatherForecasts.ToList();
     }
 
     public Task<WeatherForecast> UpdateAsync(WeatherForecast model, bool upsert = true)
@@ -62,7 +55,7 @@ public class WeatherForecastRepository : IWeatherForecastRepository, IDisposable
         {
             if (disposing)
             {
-                context.Dispose();
+                _context.Dispose();
             }
         }
         this.disposed = true;
